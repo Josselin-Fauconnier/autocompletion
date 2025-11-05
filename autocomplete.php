@@ -1,68 +1,63 @@
 <?php
-declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
+require_once 'config/db.php';
 
-require __DIR__ . '/config/db.php';   // pas de "/" initial
 
-const TABLE_NAME   = 'animaux';
-const COL_ID       = 'id';
-const COL_NAME_FR  = 'nom_fr';
+$query = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-$q     = isset($_GET['query']) ? trim((string)$_GET['query']) : '';
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5;
-$limit = max(1, min($limit, 25));
 
-if ($q === '') {
-  echo json_encode(['query'=>$q,'startsWith'=>[],'contains'=>[],'total'=>0], JSON_UNESCAPED_UNICODE);
-  exit;
+if (strlen($query) < 2) {
+    exit; 
 }
-
-
-$likeEscaper = function(string $s): string {
-  return str_replace(['\\','%','_'], ['\\\\','\\%','\\_'], $s);
-};
-$qEsc = $likeEscaper($q);
-
-$pdo = db(); 
-$pdo->query('SET NAMES utf8mb4');
-
-$sqlStarts = sprintf(
-  'SELECT %1$s AS id, %2$s AS name
-   FROM %3$s
-   WHERE %2$s LIKE CONCAT(?, "%%") ESCAPE "\\\\"
-   ORDER BY %2$s ASC
-   LIMIT ?',
-  COL_ID, COL_NAME_FR, TABLE_NAME
-);
-
-$sqlContains = sprintf(
-  'SELECT %1$s AS id, %2$s AS name
-   FROM %3$s
-   WHERE %2$s LIKE CONCAT("%%", ?, "%%") ESCAPE "\\\\"
-     AND %2$s NOT LIKE CONCAT(?, "%%") ESCAPE "\\\\"
-   ORDER BY %2$s ASC
-   LIMIT ?',
-  COL_ID, COL_NAME_FR, TABLE_NAME
-);
 
 try {
-  $st = $pdo->prepare($sqlStarts);
-  $st->execute([$qEsc, $limit]);
-  $starts = $st->fetchAll() ?: [];
-
-  $sc = $pdo->prepare($sqlContains);
-  $sc->execute([$qEsc, $qEsc, $limit]);
-  $contains = $sc->fetchAll() ?: [];
-
-  echo json_encode([
-    'query'      => $q,
-    'startsWith' => $starts,
-    'contains'   => $contains,
-    'total'      => count($starts) + count($contains)
-  ], JSON_UNESCAPED_UNICODE);
-
-} catch (Throwable $e) {
-  http_response_code(500);
-  echo json_encode(['error'=>'Erreur serveur','details'=>$e->getMessage()], JSON_UNESCAPED_UNICODE);
+    $pdo = db();
+    
+    
+    $sqlExact = "SELECT id, nom_fr, nom_latin, categorie 
+                 FROM animaux 
+                 WHERE nom_fr LIKE :queryStart 
+                    OR nom_latin LIKE :queryStart 
+                 ORDER BY nom_fr ASC 
+                 LIMIT 5";
+    
+    $stmtExact = $pdo->prepare($sqlExact);
+    $stmtExact->bindValue(':queryStart', $query . '%');
+    $stmtExact->execute();
+    $exactResults = $stmtExact->fetchAll();
+    
+    $sqlPartial = "SELECT id, nom_fr, nom_latin, categorie 
+                   FROM animaux 
+                   WHERE (nom_fr LIKE :queryPartial OR nom_latin LIKE :queryPartial)
+                     AND nom_fr NOT LIKE :queryStart 
+                     AND nom_latin NOT LIKE :queryStart
+                   ORDER BY nom_fr ASC 
+                   LIMIT 8";
+    
+    $stmtPartial = $pdo->prepare($sqlPartial);
+    $stmtPartial->bindValue(':queryPartial', '%' . $query . '%');
+    $stmtPartial->bindValue(':queryStart', $query . '%');
+    $stmtPartial->execute();
+    $partialResults = $stmtPartial->fetchAll();
+    
+    foreach ($exactResults as $animal) {
+        echo '<div data-animal-id="' . $animal['id'] . '" ';
+        echo 'data-animal-name="' . htmlspecialchars($animal['nom_fr']) . '" ';
+        echo 'data-animal-latin="' . htmlspecialchars($animal['nom_latin']) . '" ';
+        echo 'data-animal-category="' . htmlspecialchars($animal['categorie']) . '" ';
+        echo 'data-animal-exact="true"></div>';
+    }
+    
+    
+    foreach ($partialResults as $animal) {
+        echo '<div data-animal-id="' . $animal['id'] . '" ';
+        echo 'data-animal-name="' . htmlspecialchars($animal['nom_fr']) . '" ';
+        echo 'data-animal-latin="' . htmlspecialchars($animal['nom_latin']) . '" ';
+        echo 'data-animal-category="' . htmlspecialchars($animal['categorie']) . '" ';
+        echo 'data-animal-exact="false"></div>';
+    }
+    
+} catch (PDOException $e) {
+    error_log('Erreur SQL autocomplétion: ' . $e->getMessage());
 }
+?>

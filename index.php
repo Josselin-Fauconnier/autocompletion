@@ -11,13 +11,52 @@
     <div class="container">
         
         <header class="header">
-            <button id="theme-toggle" aria-label="Basculer entre le mode sombre et clair">
-             <span id="theme-icon">🐣</span>
-             </button>
-            <nav class="nav-secondary">
-                <a href="index.php" class="nav-link">Accueil</a>
-            </nav>
-        </header>
+  <nav class="nav-secondary">
+    <button id="theme-toggle" type="button" class="nav-link" aria-label="Basculer le thème">
+      <span id="theme-icon" aria-hidden="true">🐣</span>
+    </button>
+  </nav>
+
+  <section class="search-main">
+    <div class="search-container">
+      <h1 class="logo-title">
+        <span class="logo-icon" aria-hidden="true">🔎</span>
+        Le dico des animaux
+      </h1>
+
+      <form class="search-form" action="recherche.php" method="get" role="search">
+        <div class="search-wrapper">
+          <label for="search-input" class="sr-only">Rechercher un animal</label>
+
+          <input
+            id="search-input"
+            name="search"
+            class="search-input"
+            type="search"
+            placeholder="Rechercher un animal…"
+            autocomplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-owns="suggestions-list"
+            aria-controls="suggestions-list"
+          />
+
+          <button class="search-button" type="submit" aria-label="Lancer la recherche">🔍</button>
+
+          <div id="search-loading" class="search-loading" aria-hidden="true" aria-live="polite">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+
+        <div id="suggestions-container" class="suggestions-container" role="listbox" aria-label="Suggestions de recherche">
+          <ul id="suggestions-list" class="suggestions-list"></ul>
+        </div>
+      </form>
+    </div>
+  </section>
+</header>
+
 
         
         <main class="search-main">
@@ -38,10 +77,7 @@
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
                             aria-label="Rechercher un animal"
-                            aria-describedby="search-hint"
                             aria-autocomplete="list"
-                            aria-controls="suggestions-list"
-                            aria-expanded="false"
                         >
                         
                 
@@ -50,7 +86,7 @@
                         </div>
                         
                         <button type="submit" class="search-button" aria-label="Lancer la recherche">
-            
+                        🔍
                         </button>
                     </div>
                     
