@@ -29,7 +29,7 @@
         return div.innerHTML;
     }
 
-    // Mettre en évidence le terme recherché
+    
     function highlightMatch(text, query) {
         const escaped = escapeHtml(text);
         const queryEscaped = escapeHtml(query);
@@ -37,44 +37,19 @@
         return escaped.replace(regex, '<mark>$1</mark>');
     }
 
-    // Récupérer les suggestions depuis le fichier PHP simple
-    async function fetchSuggestions(query) {
-        try {
-            const response = await fetch(`suggestions.php?q=${encodeURIComponent(query)}`);
-            if (!response.ok) throw new Error('Erreur réseau');
-            const text = await response.text();
-            
-            // Le PHP retourne du HTML, on le parse pour récupérer les données
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            
-            // Récupérer les suggestions depuis les éléments HTML
-            const suggestions = [];
-            const items = doc.querySelectorAll('[data-animal-id]');
-            
-            items.forEach(item => {
-                suggestions.push({
-                    id: item.dataset.animalId,
-                    name: item.dataset.animalName,
-                    latin: item.dataset.animalLatin,
-                    category: item.dataset.animalCategory,
-                    isExact: item.dataset.animalExact === 'true'
-                });
-            });
-            
-            // Séparer en deux catégories comme demandé
-            const exact = suggestions.filter(s => s.isExact);
-            const partial = suggestions.filter(s => !s.isExact);
-            
-            return { startsWith: exact, contains: partial };
-            
-        } catch (error) {
-            console.error('Erreur:', error);
-            return null;
-        }
+   async function fetchSuggestions(query) {
+    try {
+        const response = await fetch(`autocomplete.php?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error('Erreur réseau');
+        
+        return await response.json(); 
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        return null;
     }
-
-    // Afficher les suggestions
+}
+    
     function displaySuggestions(data, query) {
         suggestionsList.innerHTML = '';
         

@@ -1,18 +1,16 @@
 <?php
-
+header('Content-Type: application/json; charset=UTF-8');
 require_once 'config/db.php';
-
 
 $query = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-
 if (strlen($query) < 2) {
-    exit; 
+    echo json_encode(['startsWith' => [], 'contains' => []]);
+    exit;
 }
 
 try {
     $pdo = db();
-    
     
     $sqlExact = "SELECT id, nom_fr, nom_latin, categorie 
                  FROM animaux 
@@ -22,42 +20,32 @@ try {
                  LIMIT 5";
     
     $stmtExact = $pdo->prepare($sqlExact);
-    $stmtExact->bindValue(':queryStart', $query . '%');
-    $stmtExact->execute();
-    $exactResults = $stmtExact->fetchAll();
+    $stmtExact->execute([':queryStart' => $query . '%']);
+    $exactResults = $stmtExact->fetchAll(PDO::FETCH_ASSOC);
+    
     
     $sqlPartial = "SELECT id, nom_fr, nom_latin, categorie 
                    FROM animaux 
-                   WHERE (nom_fr LIKE :queryPartial OR nom_latin LIKE :queryPartial)
-                     AND nom_fr NOT LIKE :queryStart 
-                     AND nom_latin NOT LIKE :queryStart
+                   WHERE (nom_fr LIKE :queryContains OR nom_latin LIKE :queryContains)
+                     AND nom_fr NOT LIKE :queryStart1 
+                     AND nom_latin NOT LIKE :queryStart2
                    ORDER BY nom_fr ASC 
-                   LIMIT 8";
+                   LIMIT 5";
     
     $stmtPartial = $pdo->prepare($sqlPartial);
-    $stmtPartial->bindValue(':queryPartial', '%' . $query . '%');
-    $stmtPartial->bindValue(':queryStart', $query . '%');
-    $stmtPartial->execute();
-    $partialResults = $stmtPartial->fetchAll();
+    $stmtPartial->execute([
+        ':queryContains' => '%' . $query . '%',
+        ':queryStart1' => $query . '%',
+        ':queryStart2' => $query . '%'
+    ]);
+    $partialResults = $stmtPartial->fetchAll(PDO::FETCH_ASSOC);
     
-    foreach ($exactResults as $animal) {
-        echo '<div data-animal-id="' . $animal['id'] . '" ';
-        echo 'data-animal-name="' . htmlspecialchars($animal['nom_fr']) . '" ';
-        echo 'data-animal-latin="' . htmlspecialchars($animal['nom_latin']) . '" ';
-        echo 'data-animal-category="' . htmlspecialchars($animal['categorie']) . '" ';
-        echo 'data-animal-exact="true"></div>';
-    }
-    
-    
-    foreach ($partialResults as $animal) {
-        echo '<div data-animal-id="' . $animal['id'] . '" ';
-        echo 'data-animal-name="' . htmlspecialchars($animal['nom_fr']) . '" ';
-        echo 'data-animal-latin="' . htmlspecialchars($animal['nom_latin']) . '" ';
-        echo 'data-animal-category="' . htmlspecialchars($animal['categorie']) . '" ';
-        echo 'data-animal-exact="false"></div>';
-    }
+    echo json_encode([
+        'startsWith' => $exactResults,
+        'contains' => $partialResults
+    ]);
     
 } catch (PDOException $e) {
-    error_log('Erreur SQL autocomplétion: ' . $e->getMessage());
+    error_log('Erreur autocomplétion: ' . $e->getMessage());
+    echo json_encode(['error' => 'Erreur serveur']);
 }
-?>

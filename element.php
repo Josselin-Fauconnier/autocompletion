@@ -20,7 +20,7 @@ if ($id <= 0) {
         $pdo = db();
         $pdo->query('SET NAMES utf8mb4');
         
-        // Requête sécurisée avec prepared statement
+       
         $sql = 'SELECT id, nom_fr, nom_latin, categorie 
                 FROM animaux 
                 WHERE id = ? 
@@ -40,7 +40,7 @@ if ($id <= 0) {
     }
 }
 
-// Fonction pour échapper les caractères HTML
+
 function escapeHtml(string $text): string {
     return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
