@@ -1,16 +1,13 @@
 <?php
 declare(strict_types=1);
 
-
+ini_set('display_errors', 1);
 error_reporting(E_ALL);
-ini_set('display_errors', '1');
 
 require_once 'config/db.php';
 
-
 $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-
 
 const RESULTS_PER_PAGE = 5;
 const TABLE_NAME = 'animaux';
@@ -24,40 +21,37 @@ if (strlen($search) >= 2) {
         $pdo = db();
         $pdo->query('SET NAMES utf8mb4');
         
-        
-        $searchEscaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
-        
+        $searchLike = '%' . $search . '%';
+        $searchStartsWith = $search . '%';
         
         $offset = ($page - 1) * RESULTS_PER_PAGE;
         
-      
+        // Requête COUNT
         $countSql = 'SELECT COUNT(*) as total FROM ' . TABLE_NAME . ' 
-                     WHERE nom_fr LIKE CONCAT("%", ?, "%") ESCAPE "\\\\" 
-                     OR nom_latin LIKE CONCAT("%", ?, "%") ESCAPE "\\\\"';
+                     WHERE nom_fr LIKE ? OR nom_latin LIKE ?';
         
         $countStmt = $pdo->prepare($countSql);
-        $countStmt->execute([$searchEscaped, $searchEscaped]);
+        $countStmt->execute([$searchLike, $searchLike]);
         $totalResults = (int)$countStmt->fetch()['total'];
         
-       
+        // 🔧 CORRECTION: Construction manuelle de la requête avec LIMIT/OFFSET
         $searchSql = 'SELECT id, nom_fr, nom_latin, categorie 
                       FROM ' . TABLE_NAME . ' 
-                      WHERE nom_fr LIKE CONCAT("%", ?, "%") ESCAPE "\\\\" 
-                      OR nom_latin LIKE CONCAT("%", ?, "%") ESCAPE "\\\\"
+                      WHERE nom_fr LIKE ? OR nom_latin LIKE ?
                       ORDER BY 
                         CASE 
-                          WHEN nom_fr LIKE CONCAT(?, "%") ESCAPE "\\\\" THEN 1
-                          WHEN nom_latin LIKE CONCAT(?, "%") ESCAPE "\\\\" THEN 2
+                          WHEN nom_fr LIKE ? THEN 1
+                          WHEN nom_latin LIKE ? THEN 2
                           ELSE 3 
                         END,
                         nom_fr ASC
-                      LIMIT ? OFFSET ?';
+                      LIMIT ' . RESULTS_PER_PAGE . ' OFFSET ' . $offset;
         
         $searchStmt = $pdo->prepare($searchSql);
         $searchStmt->execute([
-            $searchEscaped, $searchEscaped, 
-            $searchEscaped, $searchEscaped,
-            RESULTS_PER_PAGE, $offset
+            $searchLike, $searchLike, 
+            $searchStartsWith, $searchStartsWith
+            // ✅ LIMIT et OFFSET sont maintenant dans la requête, pas dans les paramètres
         ]);
         
         $results = $searchStmt->fetchAll();
@@ -65,14 +59,13 @@ if (strlen($search) >= 2) {
     } catch (Exception $e) {
         $errorMessage = 'Erreur lors de la recherche. Veuillez réessayer.';
         error_log('Erreur recherche: ' . $e->getMessage());
+        echo "<!-- Debug: " . $e->getMessage() . " -->";
     }
 }
-
 
 $totalPages = $totalResults > 0 ? ceil($totalResults / RESULTS_PER_PAGE) : 0;
 $hasResults = !empty($results);
 $isValidSearch = strlen($search) >= 2;
-
 
 function escapeHtml(string $text): string {
     return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -91,7 +84,6 @@ function highlightSearch(string $text, string $search): string {
     );
 }
 
-// Fonction pour traduire les catégories
 function translateCategory(string $category): string {
     $translations = [
         'mammifere' => 'Mammifère',
@@ -120,7 +112,6 @@ function translateCategory(string $category): string {
                 <a href="index.php" class="nav-link">Accueil</a>
             </nav>
             
-           
             <div class="search-header">
                 <form action="recherche.php" method="get" class="search-form-header" role="search">
                     <div class="search-wrapper-header">
@@ -187,7 +178,6 @@ function translateCategory(string $category): string {
                         </p>
                     </div>
 
-                    
                     <div class="results-list">
                         <?php foreach ($results as $result): ?>
                             <article class="result-item">
@@ -210,11 +200,9 @@ function translateCategory(string $category): string {
                         <?php endforeach; ?>
                     </div>
 
-                    <
                     <?php if ($totalPages > 1): ?>
                         <nav class="pagination" aria-label="Navigation par pages">
                             <ul class="pagination-list">
-                                
                                 
                                 <?php if ($page > 1): ?>
                                     <li class="pagination-item">
@@ -244,7 +232,6 @@ function translateCategory(string $category): string {
                                     </li>
                                 <?php endfor; ?>
 
-                                
                                 <?php if ($page < $totalPages): ?>
                                     <li class="pagination-item">
                                         <a href="?search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>" 

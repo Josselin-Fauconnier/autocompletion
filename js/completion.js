@@ -4,7 +4,6 @@
     const MIN_CHARS = 2;
     const DEBOUNCE_DELAY = 300;
 
-    
     let currentFocus = -1;
     let timeoutId = null;
 
@@ -14,7 +13,6 @@
     const suggestionsList = document.getElementById('suggestions-list');
     const loadingIndicator = document.getElementById('search-loading');
 
-    
     function debounce(func, delay) {
         return function(...args) {
             clearTimeout(timeoutId);
@@ -22,14 +20,12 @@
         };
     }
 
-    
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    
     function highlightMatch(text, query) {
         const escaped = escapeHtml(text);
         const queryEscaped = escapeHtml(query);
@@ -37,18 +33,20 @@
         return escaped.replace(regex, '<mark>$1</mark>');
     }
 
-   async function fetchSuggestions(query) {
-    try {
-        const response = await fetch(`autocomplete.php?q=${encodeURIComponent(query)}`);
-        if (!response.ok) throw new Error('Erreur réseau');
-        
-        return await response.json(); 
-        
-    } catch (error) {
-        console.error('Erreur:', error);
-        return null;
+    async function fetchSuggestions(query) {
+        try {
+            const response = await fetch(`autocomplete.php?q=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('Erreur réseau');
+            
+            const data = await response.json();
+            console.log('Données reçues:', data); // Debug
+            return data;
+            
+        } catch (error) {
+            console.error('Erreur fetch:', error);
+            return null;
+        }
     }
-}
     
     function displaySuggestions(data, query) {
         suggestionsList.innerHTML = '';
@@ -96,28 +94,49 @@
         showSuggestions();
     }
 
-    // Créer un élément de suggestion
+    // 🔧 CORRECTION: Utiliser nom_fr au lieu de name
     function createSuggestionItem(item, query, index) {
         const li = document.createElement('li');
         li.className = 'suggestion-item';
         li.setAttribute('data-id', item.id);
-        li.setAttribute('data-name', item.name);
+        li.setAttribute('data-name', item.nom_fr); // ✅ Utiliser nom_fr
+        li.setAttribute('data-latin', item.nom_latin || ''); // Bonus: nom latin
         li.setAttribute('data-index', index);
 
-        const highlightedName = highlightMatch(item.name, query);
+        // ✅ Mise en évidence sur nom_fr ET nom_latin
+        const highlightedFr = highlightMatch(item.nom_fr, query);
+        const highlightedLatin = item.nom_latin ? highlightMatch(item.nom_latin, query) : '';
+        
         li.innerHTML = `
             <a href="element.php?id=${item.id}" class="suggestion-link">
-                <span class="suggestion-name">${highlightedName}</span>
+                <span class="suggestion-name">${highlightedFr}</span>
+                ${highlightedLatin ? `<span class="suggestion-latin"><em>${highlightedLatin}</em></span>` : ''}
+                <span class="suggestion-category">${translateCategory(item.categorie)}</span>
             </a>
         `;
 
         // Gestion du clic
         li.addEventListener('click', function(e) {
             e.preventDefault();
-            selectSuggestion(item);
+            selectSuggestion({
+                id: item.id,
+                name: item.nom_fr // ✅ Utiliser nom_fr
+            });
         });
 
         return li;
+    }
+
+    // Fonction pour traduire les catégories (comme dans PHP)
+    function translateCategory(category) {
+        const translations = {
+            'mammifere': 'Mammifère',
+            'oiseau': 'Oiseau', 
+            'poisson': 'Poisson',
+            'reptile': 'Reptile',
+            'insecte': 'Insecte'
+        };
+        return translations[category] || category;
     }
 
     // Sélectionner une suggestion
@@ -127,7 +146,6 @@
         window.location.href = `element.php?id=${item.id}`;
     }
 
-   
     function showSuggestions() {
         suggestionsContainer.style.display = 'block';
     }
@@ -137,7 +155,6 @@
         currentFocus = -1;
     }
 
-    
     function showLoading() {
         if (loadingIndicator) loadingIndicator.style.display = 'block';
     }
@@ -160,10 +177,11 @@
         
         if (data) {
             displaySuggestions(data, query);
+        } else {
+            console.error('Pas de données reçues');
         }
     }, DEBOUNCE_DELAY);
 
-    
     function handleKeyboard(e) {
         const items = suggestionsList.querySelectorAll('.suggestion-item');
         
@@ -197,17 +215,17 @@
         }
     }
 
-   
     function updateActiveItem(items) {
         items.forEach((item, index) => {
             item.classList.toggle('active', index === currentFocus);
         });
     }
 
-    
     function init() {
         if (!searchInput || !suggestionsContainer) {
             console.error('Éléments requis non trouvés');
+            console.log('searchInput:', searchInput);
+            console.log('suggestionsContainer:', suggestionsContainer);
             return;
         }
 
@@ -223,14 +241,14 @@
             }
         });
 
-       
+        // Cacher suggestions au clic extérieur
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
                 hideSuggestions();
             }
         });
 
-        console.log('Autocomplétion initialisée');
+        console.log('✅ Autocomplétion initialisée avec succès');
     }
 
     if (document.readyState === 'loading') {
