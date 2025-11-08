@@ -15,17 +15,27 @@
                     <span id="theme-icon" aria-hidden="true">🐣</span>
                 </button>
             </nav>
-            <div class="search-header">
-        <form action="recherche.php" method="GET" class="search-form" role="search">
-            <div class="search-wrapper">
-                <input type="text" name="search" id="search-input"
-                       placeholder="Rechercher un animal..." autocomplete="off">
-                <button type="submit" class="search-button">🔍</button>
-            </div>
-            <div id="suggestions-container" class="suggestions-container">
-                <ul id="suggestions-list" class="suggestions-list"></ul>
-            </div>
-        </form>
+              <div class="search-header">
+                <form action="recherche.php" method="get" class="search-form-header" role="search">
+                    <div class="search-wrapper-header">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            id="search-input-header"
+                            class="search-input-header"
+                            placeholder="Rechercher un animal..."
+                            autocomplete="off"
+                            aria-label="Rechercher un animal"
+                        >
+                        <button type="submit" class="search-button-header" aria-label="Lancer la recherche">
+                            🔍
+                        </button>
+                    </div>
+                    
+                    <div id="suggestions-container-header" class="suggestions-container" role="listbox">
+                        <ul id="suggestions-list-header" class="suggestions-list"></ul>
+                    </div>
+                </form>
     </div>
         </header>
 
