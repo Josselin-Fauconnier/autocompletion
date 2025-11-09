@@ -75,8 +75,7 @@
                     </div>
                     
                     <div id="search-hint" class="sr-only">
-                        Tapez au moins 2 caractères pour voir les suggestions. 
-                        Utilisez les flèches pour naviguer dans les suggestions.
+                        Tapez au moins 2 caractères pour voir les suggestions.
                     </div>
 
                     <div 

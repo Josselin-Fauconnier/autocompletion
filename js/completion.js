@@ -39,7 +39,7 @@
             if (!response.ok) throw new Error('Erreur réseau');
             
             const data = await response.json();
-            console.log('Données reçues:', data); // Debug
+            console.log('Données reçues:', data); 
             return data;
             
         } catch (error) {
@@ -120,7 +120,7 @@
             e.preventDefault();
             selectSuggestion({
                 id: item.id,
-                name: item.nom_fr // ✅ Utiliser nom_fr
+                name: item.nom_fr 
             });
         });
 

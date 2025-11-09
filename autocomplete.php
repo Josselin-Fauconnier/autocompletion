@@ -17,7 +17,7 @@ try {
                  WHERE nom_fr LIKE :queryStart 
                     OR nom_latin LIKE :queryStart 
                  ORDER BY nom_fr ASC 
-                 LIMIT 5";
+                 LIMIT 10";
     
     $stmtExact = $pdo->prepare($sqlExact);
     $stmtExact->execute([':queryStart' => $query . '%']);
@@ -30,7 +30,7 @@ try {
                      AND nom_fr NOT LIKE :queryStart1 
                      AND nom_latin NOT LIKE :queryStart2
                    ORDER BY nom_fr ASC 
-                   LIMIT 5";
+                   LIMIT 10";
     
     $stmtPartial = $pdo->prepare($sqlPartial);
     $stmtPartial->execute([
