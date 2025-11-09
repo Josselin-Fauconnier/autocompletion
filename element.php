@@ -41,7 +41,6 @@ function escapeHtml(string $text): string {
     return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-// 🔧 CORRECTION: Fonction avec icônes définies
 function getCategoryInfo(string $category): array {
     $categories = [
         'mammifere' => [
@@ -57,7 +56,7 @@ function getCategoryInfo(string $category): array {
         'poisson' => [
             'name' => 'Poisson',
             'description' => 'Animal vertébré aquatique respirant par des branchies',
-            'icon' => '🐟'
+            'icon' => '🟠'
         ],
         'reptile' => [
             'name' => 'Reptile',
@@ -67,7 +66,7 @@ function getCategoryInfo(string $category): array {
         'insecte' => [
             'name' => 'Insecte',
             'description' => 'Animal invertébré articulé à six pattes',
-            'icon' => '🐛'
+            'icon' => '🛠'
         ]
     ];
     
@@ -109,18 +108,26 @@ $metaDescription = $animal ?
             </nav>
             
             <div class="search-header">
-                <form action="recherche.php" method="get" class="search-form-header" role="search">
-                    <div class="search-wrapper-header">
+                <form action="recherche.php" method="get" class="search-form" role="search">
+                    <div class="search-wrapper">
                         <input 
                             type="text" 
                             name="search" 
                             id="search-input-header"
-                            class="search-input-header"
+                            class="search-input"
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
                             aria-label="Rechercher un animal"
+                            aria-autocomplete="list"
+                            role="combobox"
+                            aria-expanded="false"
+                            aria-owns="suggestions-list-header"
+                            aria-controls="suggestions-list-header"
                         >
-                        <button type="submit" class="search-button-header" aria-label="Lancer la recherche">
+                        <div class="search-loading" id="search-loading-header" aria-hidden="true">
+                            <span class="loading-spinner"></span>
+                        </div>
+                        <button type="submit" class="search-button" aria-label="Lancer la recherche">
                             🔍
                         </button>
                     </div>

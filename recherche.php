@@ -34,7 +34,7 @@ if (strlen($search) >= 2) {
         $countStmt->execute([$searchLike, $searchLike]);
         $totalResults = (int)$countStmt->fetch()['total'];
         
-        // 🔧 CORRECTION: Construction manuelle de la requête avec LIMIT/OFFSET
+        // Construction manuelle de la requête avec LIMIT/OFFSET
         $searchSql = 'SELECT id, nom_fr, nom_latin, categorie 
                       FROM ' . TABLE_NAME . ' 
                       WHERE nom_fr LIKE ? OR nom_latin LIKE ?
@@ -51,7 +51,6 @@ if (strlen($search) >= 2) {
         $searchStmt->execute([
             $searchLike, $searchLike, 
             $searchStartsWith, $searchStartsWith
-            // ✅ LIMIT et OFFSET sont maintenant dans la requête, pas dans les paramètres
         ]);
         
         $results = $searchStmt->fetchAll();
@@ -113,19 +112,27 @@ function translateCategory(string $category): string {
             </nav>
             
             <div class="search-header">
-                <form action="recherche.php" method="get" class="search-form-header" role="search">
-                    <div class="search-wrapper-header">
+                <form action="recherche.php" method="get" class="search-form" role="search">
+                    <div class="search-wrapper">
                         <input 
                             type="text" 
                             name="search" 
                             id="search-input-header"
-                            class="search-input-header"
+                            class="search-input"
                             value="<?= escapeHtml($search) ?>"
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
                             aria-label="Rechercher un animal"
+                            aria-autocomplete="list"
+                            role="combobox"
+                            aria-expanded="false"
+                            aria-owns="suggestions-list-header"
+                            aria-controls="suggestions-list-header"
                         >
-                        <button type="submit" class="search-button-header" aria-label="Lancer la recherche">
+                        <div class="search-loading" id="search-loading-header" aria-hidden="true">
+                            <span class="loading-spinner"></span>
+                        </div>
+                        <button type="submit" class="search-button" aria-label="Lancer la recherche">
                             🔍
                         </button>
                     </div>

@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -15,31 +15,51 @@
                     <span id="theme-icon" aria-hidden="true">🐣</span>
                 </button>
             </nav>
-              <div class="search-header">
-                <form action="recherche.php" method="get" class="search-form-header" role="search">
-                    <div class="search-wrapper-header">
+            
+            <div class="search-header">
+                <form action="recherche.php" method="GET" class="search-form" role="search">
+                    <div class="search-wrapper">
                         <input 
                             type="text" 
                             name="search" 
                             id="search-input-header"
-                            class="search-input-header"
+                            class="search-input"
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
                             aria-label="Rechercher un animal"
+                            aria-autocomplete="list"
+                            role="combobox"
+                            aria-expanded="false"
+                            aria-owns="suggestions-list-header"
+                            aria-controls="suggestions-list-header"
                         >
-                        <button type="submit" class="search-button-header" aria-label="Lancer la recherche">
+                        
+                        <div class="search-loading" id="search-loading-header" aria-hidden="true">
+                            <span class="loading-spinner"></span>
+                        </div>
+                        
+                        <button type="submit" class="search-button" aria-label="Lancer la recherche">
                             🔍
                         </button>
                     </div>
                     
-                    <div id="suggestions-container-header" class="suggestions-container" role="listbox">
-                        <ul id="suggestions-list-header" class="suggestions-list"></ul>
+                    <div id="search-hint-header" class="sr-only">
+                        Tapez au moins 2 caractères pour voir les suggestions.
+                    </div>
+
+                    <div 
+                        id="suggestions-container-header" 
+                        class="suggestions-container"
+                        role="listbox"
+                        aria-label="Suggestions de recherche"
+                    >
+                        <ul id="suggestions-list-header" class="suggestions-list">
+                        </ul>
                     </div>
                 </form>
-    </div>
+            </div>
         </header>
 
-        <!-- 🔧 UNE SEULE section de recherche -->
         <main class="search-main">
             <div class="search-container">
                 <h1 class="logo-title">
@@ -53,7 +73,7 @@
                         <input 
                             type="text" 
                             name="search" 
-                            id="search-input"
+                            id="search-input-main"
                             class="search-input"
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
@@ -61,11 +81,11 @@
                             aria-autocomplete="list"
                             role="combobox"
                             aria-expanded="false"
-                            aria-owns="suggestions-list"
-                            aria-controls="suggestions-list"
+                            aria-owns="suggestions-list-main"
+                            aria-controls="suggestions-list-main"
                         >
                         
-                        <div class="search-loading" id="search-loading" aria-hidden="true">
+                        <div class="search-loading" id="search-loading-main" aria-hidden="true">
                             <span class="loading-spinner"></span>
                         </div>
                         
@@ -74,17 +94,17 @@
                         </button>
                     </div>
                     
-                    <div id="search-hint" class="sr-only">
+                    <div id="search-hint-main" class="sr-only">
                         Tapez au moins 2 caractères pour voir les suggestions.
                     </div>
 
                     <div 
-                        id="suggestions-container" 
+                        id="suggestions-container-main" 
                         class="suggestions-container"
                         role="listbox"
                         aria-label="Suggestions de recherche"
                     >
-                        <ul id="suggestions-list" class="suggestions-list">
+                        <ul id="suggestions-list-main" class="suggestions-list">
                         </ul>
                     </div>
                 </form>
