@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 require_once 'config/db.php';
 
 $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
@@ -26,7 +23,7 @@ if (strlen($search) >= 2) {
         
         $offset = ($page - 1) * RESULTS_PER_PAGE;
         
-        // Requête COUNT
+        
         $countSql = 'SELECT COUNT(*) as total FROM ' . TABLE_NAME . ' 
                      WHERE nom_fr LIKE ? OR nom_latin LIKE ?';
         
@@ -34,7 +31,7 @@ if (strlen($search) >= 2) {
         $countStmt->execute([$searchLike, $searchLike]);
         $totalResults = (int)$countStmt->fetch()['total'];
         
-        // Construction manuelle de la requête avec LIMIT/OFFSET
+       
         $searchSql = 'SELECT id, nom_fr, nom_latin, categorie 
                       FROM ' . TABLE_NAME . ' 
                       WHERE nom_fr LIKE ? OR nom_latin LIKE ?
@@ -83,17 +80,7 @@ function highlightSearch(string $text, string $search): string {
     );
 }
 
-function translateCategory(string $category): string {
-    $translations = [
-        'mammifere' => 'Mammifère',
-        'oiseau' => 'Oiseau',
-        'poisson' => 'Poisson',
-        'reptile' => 'Reptile',
-        'insecte' => 'Insecte'
-    ];
-    
-    return $translations[$category] ?? ucfirst($category);
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -106,20 +93,22 @@ function translateCategory(string $category): string {
 </head>
 <body>
     <div class="container">
+         <div class="container">
         <header class="header">
             <nav class="nav-secondary">
-                <a href="index.php" class="nav-link">Accueil</a>
+                <button id="theme-toggle" type="button" class="nav-link" aria-label="Basculer le thème">
+                    <span id="theme-icon" aria-hidden="true">🐣</span>
+                </button>
             </nav>
             
             <div class="search-header">
-                <form action="recherche.php" method="get" class="search-form" role="search">
+                <form action="recherche.php" method="GET" class="search-form" role="search">
                     <div class="search-wrapper">
                         <input 
                             type="text" 
                             name="search" 
                             id="search-input-header"
                             class="search-input"
-                            value="<?= escapeHtml($search) ?>"
                             placeholder="Rechercher un animal..."
                             autocomplete="off"
                             aria-label="Rechercher un animal"
@@ -129,20 +118,33 @@ function translateCategory(string $category): string {
                             aria-owns="suggestions-list-header"
                             aria-controls="suggestions-list-header"
                         >
+                        
                         <div class="search-loading" id="search-loading-header" aria-hidden="true">
                             <span class="loading-spinner"></span>
                         </div>
+                        
                         <button type="submit" class="search-button" aria-label="Lancer la recherche">
                             🔍
                         </button>
                     </div>
                     
-                    <div id="suggestions-container-header" class="suggestions-container" role="listbox">
-                        <ul id="suggestions-list-header" class="suggestions-list"></ul>
+                    <div id="search-hint-header" class="sr-only">
+                        Tapez au moins 2 caractères pour voir les suggestions.
+                    </div>
+
+                    <div 
+                        id="suggestions-container-header" 
+                        class="suggestions-container"
+                        role="listbox"
+                        aria-label="Suggestions de recherche"
+                    >
+                        <ul id="suggestions-list-header" class="suggestions-list">
+                        </ul>
                     </div>
                 </form>
             </div>
         </header>
+
         <main class="main-content">
             <div class="results-container">
                 
@@ -196,11 +198,7 @@ function translateCategory(string $category): string {
                                         <p class="result-latin">
                                             <em><?= highlightSearch($result['nom_latin'], $search) ?></em>
                                         </p>
-                                        <p class="result-category">
-                                            <span class="category-badge category-<?= escapeHtml($result['categorie']) ?>">
-                                                <?= translateCategory($result['categorie']) ?>
-                                            </span>
-                                        </p>
+                                        
                                     </div>
                                 </a>
                             </article>
@@ -256,6 +254,7 @@ function translateCategory(string $category): string {
             </div>
         </main>
     </div>
+    <script src="js/script.js"></script>
     <script src="js/completion.js" defer></script>
 </body>
 </html>

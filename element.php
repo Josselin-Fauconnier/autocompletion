@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 
 require_once 'config/db.php';
 
@@ -56,7 +54,7 @@ function getCategoryInfo(string $category): array {
         'poisson' => [
             'name' => 'Poisson',
             'description' => 'Animal vertébré aquatique respirant par des branchies',
-            'icon' => '🟠'
+            'icon' => '🐟'
         ],
         'reptile' => [
             'name' => 'Reptile',
@@ -66,7 +64,7 @@ function getCategoryInfo(string $category): array {
         'insecte' => [
             'name' => 'Insecte',
             'description' => 'Animal invertébré articulé à six pattes',
-            'icon' => '🛠'
+            'icon' => '🐞'
         ]
     ];
     
@@ -144,7 +142,7 @@ $metaDescription = $animal ?
                 <?php if ($errorMessage): ?>
                     <div class="error-section">
                         <div class="error-content">
-                            <h1>😕 Oups !</h1>
+                            <h1>Oups !</h1>
                             <p class="error-message"><?= escapeHtml($errorMessage) ?></p>
                             <div class="error-actions">
                                 <a href="index.php" class="btn btn-primary">Retour à l'accueil</a>
@@ -158,9 +156,7 @@ $metaDescription = $animal ?
                     
                     <nav class="breadcrumb" aria-label="Fil d'Ariane">
                         <ol class="breadcrumb-list">
-                            <li class="breadcrumb-item">
-                                <a href="index.php">Accueil</a>
-                            </li>
+                           
                             <li class="breadcrumb-item">
                                 <a href="recherche.php?search=<?= urlencode($categoryInfo['name']) ?>">
                                     <?= escapeHtml($categoryInfo['name']) ?>s
@@ -203,8 +199,6 @@ $metaDescription = $animal ?
                                     <dt>Classification :</dt>
                                     <dd><?= escapeHtml($categoryInfo['description']) ?></dd>
                                     
-                                    <dt>Identifiant :</dt>
-                                    <dd>#<?= (int)$animal['id'] ?></dd>
                                 </dl>
                             </section>
 
@@ -215,10 +209,12 @@ $metaDescription = $animal ?
                                        class="btn btn-primary">
                                         🔍 Recherches similaires
                                     </a>
-                                    <a href="recherche.php?search=<?= urlencode($categoryInfo['name']) ?>" 
-                                       class="btn btn-secondary">
-                                        📋 Voir tous les <?= escapeHtml(strtolower($categoryInfo['name'])) ?>s
+                                     <div class="action-buttons">
+                                    <a href="index.php" 
+                                       class="btn btn-primary">
+                                         🌐Retrour à l'acceuil
                                     </a>
+                                  
                                 </div>
                             </section>
                         </div>
