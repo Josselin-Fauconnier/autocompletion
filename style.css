@@ -221,18 +221,7 @@ ul{
 }
 
 
-/* Affichache résultat de recherche */
-.no-results{
-    padding: var(--spacing-lg);
-    text-align: center;
-    color: var(--text-secondary);
-}
 
-.results-header {
-    margin-bottom: var(--spacing-md);
-    font-size: 1rem;
-    color: var(--text-secondary);
-}
 /* Bouton de recherche */
 .search-button {
     position: absolute;
@@ -596,7 +585,18 @@ ul{
 }
 
 
+/* Affichache résultat de recherche */
+.no-results{
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--text-secondary);
+}
 
+.results-header {
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--text-secondary);
+}
 
 /* accessibilité */
 .sr-only {
@@ -609,6 +609,11 @@ ul{
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 
@@ -696,8 +701,6 @@ ul{
 }
 
 
-
-
 /* Support du mode sombre  */
 @media (prefers-color-scheme: dark) {
     :root {
@@ -720,8 +723,3 @@ ul{
 
 
 
-/* Focus visible pour l'accessibilité */
-:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}

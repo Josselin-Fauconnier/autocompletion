@@ -1,14 +1,14 @@
-// Variables globales simples
+
 const MIN_CHARS = 2;
 
-// Fonction pour échapper le HTML
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Fonction pour mettre en évidence les correspondances
+
 function highlightMatch(text, query) {
     const escaped = escapeHtml(text);
     const queryEscaped = escapeHtml(query);
@@ -16,7 +16,7 @@ function highlightMatch(text, query) {
     return escaped.replace(regex, '<mark>$1</mark>');
 }
 
-// Récupérer les suggestions depuis l'API
+
 async function fetchSuggestions(query) {
     try {
         const response = await fetch(`autocomplete.php?q=${encodeURIComponent(query)}`);
@@ -28,7 +28,7 @@ async function fetchSuggestions(query) {
     }
 }
 
-// Créer un élément de suggestion
+
 function createSuggestionItem(item, query, index) {
     const li = document.createElement('li');
     li.className = 'suggestion-item';
@@ -49,23 +49,22 @@ function createSuggestionItem(item, query, index) {
     return li;
 }
 
-// Fonction principale pour gérer une barre de recherche
+
 function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId, loadingId) {
     const searchInput = document.getElementById(searchInputId);
     const suggestionsContainer = document.getElementById(suggestionsContainerId);
     const suggestionsList = document.getElementById(suggestionsListId);
     const loadingIndicator = document.getElementById(loadingId);
 
-    // Si les éléments n'existent pas, on arrête
+    
     if (!searchInput || !suggestionsContainer || !suggestionsList) {
         console.log('Éléments manquants pour:', searchInputId);
         return;
     }
 
-    // Variable pour la navigation au clavier
+    
     let currentFocus = -1;
 
-    // Afficher les suggestions
     function displaySuggestions(data, query) {
         suggestionsList.innerHTML = '';
         
@@ -76,7 +75,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
 
         let index = 0;
 
-        // Section "Commence par"
+        
         if (data.startsWith?.length > 0) {
             const header = document.createElement('li');
             header.className = 'suggestions-header';
@@ -85,7 +84,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
 
             data.startsWith.forEach(item => {
                 const li = createSuggestionItem(item, query, index++);
-                // Gérer le clic
+                
                 li.addEventListener('click', function(e) {
                     e.preventDefault();
                     selectSuggestion(item);
@@ -94,14 +93,14 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
             });
         }
 
-        // Séparateur
+        
         if (data.startsWith?.length > 0 && data.contains?.length > 0) {
             const separator = document.createElement('li');
             separator.className = 'suggestions-separator';
             suggestionsList.appendChild(separator);
         }
 
-        // Section "Contient"
+        
         if (data.contains?.length > 0) {
             const header = document.createElement('li');
             header.className = 'suggestions-header';
@@ -110,7 +109,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
 
             data.contains.forEach(item => {
                 const li = createSuggestionItem(item, query, index++);
-                // Gérer le clic
+                
                 li.addEventListener('click', function(e) {
                     e.preventDefault();
                     selectSuggestion(item);
@@ -122,14 +121,14 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         showSuggestions();
     }
 
-    // Sélectionner une suggestion
+    
     function selectSuggestion(item) {
         searchInput.value = item.nom_fr;
         hideSuggestions();
         window.location.href = `element.php?id=${item.id}`;
     }
 
-    // Afficher/masquer les suggestions
+    
     function showSuggestions() {
         suggestionsContainer.style.display = 'block';
     }
@@ -139,7 +138,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         currentFocus = -1;
     }
 
-    // Afficher/masquer le loading
+    
     function showLoading() {
         if (loadingIndicator) loadingIndicator.style.display = 'block';
     }
@@ -148,7 +147,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         if (loadingIndicator) loadingIndicator.style.display = 'none';
     }
 
-    // Fonction de recherche simple
+    
     async function performSearch(query) {
         if (query.length < MIN_CHARS) {
             hideSuggestions();
@@ -165,14 +164,14 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         }
     }
 
-    // Mettre à jour l'élément actif
+    
     function updateActiveItem(items) {
         items.forEach((item, index) => {
             item.classList.toggle('active', index === currentFocus);
         });
     }
 
-    // Gestion du clavier
+    
     function handleKeyboard(e) {
         const items = suggestionsList.querySelectorAll('.suggestion-item');
         
@@ -198,7 +197,7 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         }
     }
 
-    // Attacher les événements
+    
     searchInput.addEventListener('input', (e) => {
         performSearch(e.target.value.trim());
     });
@@ -211,19 +210,19 @@ function setupSearchBar(searchInputId, suggestionsContainerId, suggestionsListId
         }
     });
 
-    // Cacher les suggestions au clic extérieur
+   
     document.addEventListener('click', function(e) {
         if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
             hideSuggestions();
         }
     });
 
-    console.log('✅ Barre de recherche initialisée:', searchInputId);
+    console.log(' Barre de recherche initialisée:', searchInputId);
 }
 
-// Initialisation quand le DOM est prêt
+
 function initAutocompletion() {
-    // Configurer la barre du header
+   
     setupSearchBar(
         'search-input-header',
         'suggestions-container-header', 
@@ -231,7 +230,7 @@ function initAutocompletion() {
         'search-loading-header'
     );
 
-    // Configurer la barre du main
+    
     setupSearchBar(
         'search-input-main',
         'suggestions-container-main',
@@ -239,10 +238,9 @@ function initAutocompletion() {
         'search-loading-main'
     );
 
-    console.log('🎯 Autocomplétion initialisée');
+    console.log(' Autocomplétion initialisée');
 }
 
-// Démarrer quand le DOM est prêt
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAutocompletion);
 } else {

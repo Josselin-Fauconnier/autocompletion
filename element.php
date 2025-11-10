@@ -204,11 +204,6 @@ $metaDescription = $animal ?
 
                             <section class="animal-actions">
                                 <h2>Actions</h2>
-                                <div class="action-buttons">
-                                    <a href="recherche.php?search=<?= urlencode($animal['nom_fr']) ?>" 
-                                       class="btn btn-primary">
-                                        🔍 Recherches similaires
-                                    </a>
                                      <div class="action-buttons">
                                     <a href="index.php" 
                                        class="btn btn-primary">
